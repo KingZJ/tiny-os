@@ -2,7 +2,8 @@
 #![no_main]
 
 use core::panic::PanicInfo;
-mod parse;
+
+mod hello;
 
 #[panic_handler]
 fn panic(_info: &PanicInfo) -> ! {
@@ -13,6 +14,7 @@ fn panic(_info: &PanicInfo) -> ! {
 
 #[no_mangle]
 pub extern "C" fn _start() -> ! {
+    hello::hello();
     loop {
         
     }

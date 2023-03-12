@@ -6,12 +6,13 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+bootloader = "0.9.23"
 
 
 
-# 禁用栈展开
-[profile.dev]
-panic = "abort"
+# 禁用栈展开 x86_64-tiny_os.json panic-strategy 代替
+# [profile.dev]
+# panic = "abort"
 
-[profile.release]
-panic = "abort"
+# [profile.release]
+# panic = "abort"
