@@ -23,10 +23,16 @@ pub extern "C" fn _start() -> ! {
     .unwrap();
     println!("\nHello world{}", "!");
 
+    init();   //初始化 idt
+
+    x86_64::instructions::interrupts::int3();  // invoke a breakpoint exception
+
     // panic!("Some panic message");
 
     #[cfg(test)]
     test_main();
+
+    println!("It did not crash!");
     loop {}
 }
 
