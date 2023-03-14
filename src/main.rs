@@ -23,9 +23,18 @@ pub extern "C" fn _start() -> ! {
     .unwrap();
     println!("\nHello world{}", "!");
 
-    init();   //初始化 idt
+    init(); //初始化 idt
 
-    x86_64::instructions::interrupts::int3();  // invoke a breakpoint exception
+    // x86_64::instructions::interrupts::int3();  // invoke a breakpoint exception
+
+    // unsafe {
+    //     *(0xdeadbeef as *mut u64) = 42;  // page fault
+    // }
+
+    fn stack_overflow() {
+        stack_overflow();
+    }
+    stack_overflow();
 
     // panic!("Some panic message");
 

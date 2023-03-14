@@ -29,6 +29,10 @@ test-timeout = 5
 name = "should_panic_no_harness"
 harness = false
 
+[[test]]
+name = "stack_overflow"
+harness = false
+
 
 
 # 禁用栈展开 x86_64-tiny_os.json panic-strategy 代替
