@@ -12,15 +12,17 @@ use tiny_os::*;
 pub extern "C" fn _start() -> ! {
     // hello::hello();
     // vga_buffer::print_something();
-    use core::fmt::Write;
-    vga_buffer::WRITER.lock().write_str("Hello again").unwrap();
-    write!(
-        vga_buffer::WRITER.lock(),
-        ", some numbers: {} {}",
-        42,
-        1.337
-    )
-    .unwrap();
+
+    // use core::fmt::Write;
+    // vga_buffer::WRITER.lock().write_str("Hello again").unwrap();
+    // write!(
+    //     vga_buffer::WRITER.lock(),
+    //     ", some numbers: {} {}",
+    //     42,
+    //     1.337
+    // )
+    // .unwrap();
+
     println!("\nHello world{}", "!");
 
     init(); //初始化 idt
@@ -31,10 +33,10 @@ pub extern "C" fn _start() -> ! {
     //     *(0xdeadbeef as *mut u64) = 42;  // page fault
     // }
 
-    fn stack_overflow() {
-        stack_overflow();
-    }
-    stack_overflow();
+    // fn stack_overflow() {
+    //     stack_overflow();
+    // }
+    // stack_overflow();
 
     // panic!("Some panic message");
 
@@ -42,14 +44,20 @@ pub extern "C" fn _start() -> ! {
     test_main();
 
     println!("It did not crash!");
-    loop {}
+
+    // loop {
+    //     for _ in 0..10000 {}
+    //     print!("-");
+    // }
+    hlt_loop(); // CPU 可暂停的无限循环
 }
 
 #[cfg(not(test))]
 #[panic_handler]
 fn panic(info: &PanicInfo) -> ! {
     println!("{}", info);
-    loop {}
+    // loop {}
+    hlt_loop();
 }
 
 #[cfg(test)]

@@ -13,11 +13,14 @@ lazy_static! {
 // pub fn _print(args: ::core::fmt::Arguments) {
 pub fn _print(args: core::fmt::Arguments) {
     use core::fmt::Write;
+    use x86_64::instructions::interrupts;
 
-    SERIAL1
-        .lock()
-        .write_fmt(args)
-        .expect("print to serial failed");
+    interrupts::without_interrupts(|| {
+        SERIAL1
+            .lock()
+            .write_fmt(args)
+            .expect("print to serial failed")
+    });
 }
 
 /// print to the host through the serial interface
