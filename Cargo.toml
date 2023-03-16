@@ -14,7 +14,9 @@ spin = "0.9.0" #"0.5.2"
 x86_64 = "0.14.2"
 uart_16550 = "0.2.0"   # 串口 用于计算机通信
 pic8259 = "0.10.1"  # programable interrupt controller
-pc-keyboard = "0.5.0" #"0.7.0"
+pc-keyboard = "0.5.0" #"0.7.0"  # 键盘 按键转码
+linked_list_allocator = "0.9.0"
+
 
 
 [package.metadata.bootimage]

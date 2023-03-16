@@ -4,6 +4,9 @@
 #![test_runner(tiny_os::test_runner)]
 #![reexport_test_harness_main = "test_main"]
 
+extern crate alloc;
+
+use alloc::{boxed::Box, vec::Vec};
 use core::panic::PanicInfo;
 
 use bootloader::{entry_point, BootInfo};
@@ -30,7 +33,7 @@ fn kernel_main(boot_info: &'static BootInfo) -> ! {
 
     // print_virt2phys(boot_info);
     // print_virt2phys2(boot_info);
-    create_new_page_map(boot_info);
+    // create_new_page_map(boot_info);
 
     // fn stack_overflow() {
     //     stack_overflow();
@@ -38,6 +41,7 @@ fn kernel_main(boot_info: &'static BootInfo) -> ! {
     // stack_overflow();
 
     // panic!("Some panic message");
+    dyn_alloc_mem(boot_info);
 
     #[cfg(test)]
     test_main();
@@ -175,6 +179,28 @@ fn create_new_page_map(boot_info: &'static BootInfo) {
     let page_ptr: *mut u64 = page.start_address().as_mut_ptr();
     unsafe { page_ptr.offset(400).write_volatile(0x_f021_f077_f065_f04e) }
 }
+
+fn dyn_alloc_mem(boot_info: &'static BootInfo) {
+    use x86_64::VirtAddr;
+
+    let phys_mem_offset = VirtAddr::new(boot_info.physical_memory_offset);
+    let mut mapper = unsafe { memory::init(phys_mem_offset) };
+    // let mut frame_allocator = memory::EmptyFrameAllocator;
+    let mut frame_allocator =
+        unsafe { memory::BootInfoFrameAllocator::init(&boot_info.memory_map) };
+
+    allocator::init_heap(&mut mapper, &mut frame_allocator).expect("heap initializatuin failed");
+    let x = Box::new(12);
+    println!("heap_value {} at {0:p}", x);
+
+    let mut arr = Vec::new();
+    for i in 0..10 {
+        arr.push(i);
+    }
+    println!("arr {:?} at {0:p}", arr.as_slice());
+
+}
+
 
 #[test_case]
 fn trivial_assertion() {

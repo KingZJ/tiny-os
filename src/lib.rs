@@ -4,9 +4,13 @@
 #![test_runner(crate::test_runner)]
 #![reexport_test_harness_main = "test_main"]
 #![feature(abi_x86_interrupt)]
+#![feature(alloc_error_handler)]
+
+extern crate alloc;
 
 use core::panic::PanicInfo;
 
+pub mod allocator;
 pub mod gdt;
 pub mod interrupts;
 pub mod memory;
@@ -20,6 +24,11 @@ pub fn init() {
         interrupts::PICS.lock().initialize();
     }
     x86_64::instructions::interrupts::enable(); // 启用中断
+}
+
+#[alloc_error_handler]
+fn alloc_error_handler(layout: alloc::alloc::Layout) -> ! {
+    panic!("allocation error: {:?}", layout)
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
