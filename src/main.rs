@@ -28,7 +28,9 @@ fn kernel_main(boot_info: &'static BootInfo) -> ! {
     // print_level4_page_table();
     // print_l4_page_table(boot_info);
 
-    print_virt2phys(boot_info);
+    // print_virt2phys(boot_info);
+    // print_virt2phys2(boot_info);
+    create_new_page_map(boot_info);
 
     // fn stack_overflow() {
     //     stack_overflow();
@@ -116,6 +118,28 @@ fn print_l4_page_table(boot_info: &'static BootInfo) {
     }
 }
 
+#[allow(dead_code)]
+fn print_virt2phys2(boot_info: &'static BootInfo) {
+    use x86_64::{structures::paging::Translate, VirtAddr};
+
+    let phys_mem_offset = VirtAddr::new(boot_info.physical_memory_offset);
+    let mapper = unsafe { memory::init(phys_mem_offset) };
+
+    let addresses = [
+        0xb8000, // vga buffer page
+        0x201008,
+        0x0100_0020_1a10,
+        boot_info.physical_memory_offset,
+    ];
+
+    for &addr in &addresses {
+        let virt = VirtAddr::new(addr);
+        let phys = mapper.translate_addr(virt);
+        println!("{:?} -> {:?}", virt, phys);
+    }
+}
+
+#[allow(dead_code)]
 fn print_virt2phys(boot_info: &'static BootInfo) {
     use x86_64::VirtAddr;
     let phys_mem_offset = VirtAddr::new(boot_info.physical_memory_offset);
@@ -132,6 +156,24 @@ fn print_virt2phys(boot_info: &'static BootInfo) {
         let phys = unsafe { memory::translate_addr(virt, phys_mem_offset) };
         println!("{:?} -> {:?}", virt, phys);
     }
+}
+
+#[allow(dead_code)]
+fn create_new_page_map(boot_info: &'static BootInfo) {
+    use x86_64::{structures::paging::Page, VirtAddr};
+
+    let phys_mem_offset = VirtAddr::new(boot_info.physical_memory_offset);
+    let mut mapper = unsafe { memory::init(phys_mem_offset) };
+    // let mut frame_allocator = memory::EmptyFrameAllocator;
+    let mut frame_allocator =
+        unsafe { memory::BootInfoFrameAllocator::init(&boot_info.memory_map) };
+
+    // let page = Page::containing_address(VirtAddr::new(0));
+    let page = Page::containing_address(VirtAddr::new(0xdeadbeaf000));
+    memory::create_example_mapping(page, &mut mapper, &mut frame_allocator);
+
+    let page_ptr: *mut u64 = page.start_address().as_mut_ptr();
+    unsafe { page_ptr.offset(400).write_volatile(0x_f021_f077_f065_f04e) }
 }
 
 #[test_case]
