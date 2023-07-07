@@ -1,7 +1,12 @@
 use alloc::alloc::{GlobalAlloc, Layout};
-use x86_64::{structures::paging::{mapper::MapToError, Size4KiB, FrameAllocator, Mapper, Page, PageTableFlags}, VirtAddr};
 use core::ptr::null_mut;
 use linked_list_allocator::LockedHeap;
+use x86_64::{
+    structures::paging::{
+        mapper::MapToError, FrameAllocator, Mapper, Page, PageTableFlags, Size4KiB,
+    },
+    VirtAddr,
+};
 
 pub struct Dummy;
 
@@ -19,12 +24,8 @@ unsafe impl GlobalAlloc for Dummy {
 // static ALLOCATOR: Dummy = Dummy;
 static ALLOCATOR: LockedHeap = LockedHeap::empty();
 
-
-
-
-
 pub const HEAP_START: usize = 0x_4444_4444_0000;
-pub const HEAP_SIZE: usize = 100 * 1024;  // 100k
+pub const HEAP_SIZE: usize = 100 * 1024; // 100k
 
 pub fn init_heap(
     mapper: &mut impl Mapper<Size4KiB>,
@@ -39,17 +40,17 @@ pub fn init_heap(
     };
 
     for page in page_range {
-        let frame = frame_allocator.allocate_frame().ok_or(MapToError::FrameAllocationFailed)?;
+        let frame = frame_allocator
+            .allocate_frame()
+            .ok_or(MapToError::FrameAllocationFailed)?;
         let flags = PageTableFlags::PRESENT | PageTableFlags::WRITABLE;
 
-        unsafe {
-            mapper.map_to(page, frame, flags, frame_allocator)?.flush()
-        };
+        unsafe { mapper.map_to(page, frame, flags, frame_allocator)?.flush() };
     }
 
-    unsafe { ALLOCATOR.lock().init(HEAP_START, HEAP_SIZE); }
+    unsafe {
+        ALLOCATOR.lock().init(HEAP_START, HEAP_SIZE);
+    }
 
     Ok(())
 }
-
-

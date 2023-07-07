@@ -198,9 +198,7 @@ fn dyn_alloc_mem(boot_info: &'static BootInfo) {
         arr.push(i);
     }
     println!("arr {:?} at {0:p}", arr.as_slice());
-
 }
-
 
 #[test_case]
 fn trivial_assertion() {

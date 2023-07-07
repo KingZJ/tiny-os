@@ -8,7 +8,7 @@ use core::panic::PanicInfo;
 
 use alloc::{boxed::Box, vec};
 use bootloader::{entry_point, BootInfo};
-use tiny_os::{*, allocator::HEAP_SIZE};
+use tiny_os::{allocator::HEAP_SIZE, *};
 
 extern crate alloc;
 
@@ -19,12 +19,8 @@ fn main(bootinfo: &'static BootInfo) -> ! {
 
     init();
     let phys_mem_offset = VirtAddr::new(bootinfo.physical_memory_offset);
-    let mut mapper = unsafe {
-        memory::init(phys_mem_offset)
-    };
-    let mut frame_allocator = unsafe {
-        memory::BootInfoFrameAllocator::init(&bootinfo.memory_map)
-    };
+    let mut mapper = unsafe { memory::init(phys_mem_offset) };
+    let mut frame_allocator = unsafe { memory::BootInfoFrameAllocator::init(&bootinfo.memory_map) };
     allocator::init_heap(&mut mapper, &mut frame_allocator).expect("heap initialization failed");
 
     test_main();
@@ -53,7 +49,7 @@ fn large_vec() {
         vec.push(i);
     }
 
-    assert_eq!(vec.iter().sum::<u64>(), n * (n-1)/2);
+    assert_eq!(vec.iter().sum::<u64>(), n * (n - 1) / 2);
 }
 
 #[test_case]
